@@ -1,5 +1,5 @@
 # pausenkatzen
-*Multicast pollution if there is no active conference
+*Multicast pollution if there is no active conference*
 
 ## synopsis
 read [Chaos Communication Congress/Camp](https://streaming.media.ccc.de) schedule and set up multicast streams for each room/stage.  Transmit a random video from a pool when there is no talk broadcasted (also known as '[pausenkatzen](https://www.youtube.com/watch?v=kg2fwlFsZss)' or: 'intermission cats').

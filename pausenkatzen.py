@@ -7,17 +7,17 @@ import threading
 from dateutil.parser import parse
 
 from VideoPool import VideoPool
-from StreamIndexer import StreamIndexer
+from CccStreamIndexer import CccStreamIndexer
 from Streamer import Streamer
 
 # Initialize helpers
 videopool = VideoPool( "/home/xopr/Videos/*.mp4")
-streamIndexer = StreamIndexer( uri="https://fahrplan.events.ccc.de/camp/2019/Fahrplan/schedule.json", margin=300, refreshInterval=1700 )
+streamIndexer = CccStreamIndexer( uri="https://fahrplan.events.ccc.de/camp/2019/Fahrplan/schedule.json", margin=300, refreshInterval=1700 )
 streamer = Streamer( uri="https://cdn.c3voc.de/hls/s{}_native_sd.m3u8", address="239.255.255.42", refreshInterval=0.5 )
 
 roomsStreaming = {}
 
-rooms = streamIndexer.getRooms( )
+rooms = streamIndexer.getStreamLocations( )
 for room in rooms:
     roomsStreaming[ room ] = False
 
@@ -43,7 +43,7 @@ def setInterval(func, sec):
 
 
 def checkBusy():
-    roomsBusy = streamIndexer.getActiveTalks( )
+    roomsBusy = streamIndexer.getActiveStreams( )
 
     for room in roomsBusy:
         if ( not roomsBusy[ room ] and roomsStreaming[ room ] ):
@@ -63,7 +63,7 @@ streamer.attachEvent( playEvent )
 streamer.setStreams( rooms )
 
 # Kick off the streams
-for room in streamIndexer.getRooms():
+for room in streamIndexer.getStreamLocations():
     streamer.setIntermezzo( room, videopool.randomVideo() )
     streamer.setActive( room, False )
 

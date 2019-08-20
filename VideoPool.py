@@ -40,9 +40,12 @@ class VideoPool:
         if ( not self.refreshInterval ):
             self.update()
 
-        randomChoice = self.popList.pop(random.randrange(len(self.popList)))
+        if ( not len(self.list) ):
+            return []
+
         if ( not len(self.popList) ):
             self.popList = self.list[:]
 
-        return randomChoice
+        randomChoice = self.popList.pop(random.randrange(len(self.popList)))
 
+        return randomChoice

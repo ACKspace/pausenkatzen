@@ -14,8 +14,8 @@ from Mosaic import Mosaic
 
 # Initialize helpers
 videopool = VideoPool( "/home/xopr/Videos/*.mp4")
-#streamIndexer = CccStreamIndexer( uri="https://fahrplan.events.ccc.de/camp/2019/Fahrplan/schedule.json", margin=300, refreshInterval=1700 )
-streamIndexer = IcsStreamIndexer( uri="https://calendar.google.com/calendar/ical/urcks8dad8c2437selb600pm10%40group.calendar.google.com/public/basic.ics", margin=300, refreshInterval=0 )
+streamIndexer = CccStreamIndexer( uri="https://fahrplan.events.ccc.de/camp/2019/Fahrplan/schedule.json", margin=300, refreshInterval=1700 )
+#streamIndexer = IcsStreamIndexer( uri="https://calendar.google.com/calendar/ical/urcks8dad8c2437selb600pm10%40group.calendar.google.com/public/basic.ics", margin=300, refreshInterval=0 )
 streamer = Streamer( uri="https://cdn.c3voc.de/hls/s{}_native_sd.m3u8", address="239.255.255.42", refreshInterval=0.5 )
 mosaic = Mosaic( uri="PM5644.svg", address="239.255.255.42", refreshInterval=0.5, startPort=9001, outPort=5004 )
 
@@ -74,6 +74,7 @@ if ( len(videopool.list) ):
     for room in streamIndexer.getStreamLocations():
         streamer.setIntermezzo( room, videopool.randomVideo() )
         streamer.setActive( room, False )
+        mosaic.setActive( room, True )
 
 setInterval( checkBusy, 60 )
 checkBusy()

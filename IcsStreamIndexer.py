@@ -28,7 +28,7 @@ class IcsStreamIndexer:
     def update(self):
         response = requests.get(self.uri)
         self.schedule = Calendar.from_ical(response.text)
-        print( self.schedule )
+        #print( self.schedule )
 
     def getStreamLocations(self):
         locations = set()

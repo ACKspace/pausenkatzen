@@ -10,12 +10,13 @@ read [Chaos Communication Congress/Camp](https://streaming.media.ccc.de) schedul
 * python (python3 in the works)
 * python libraries (some are packaged with python):
   * collections
-  * datetime
-  * dateutil
+  * datetime (for CccStreamIndexer)
+  * dateutil (for CccStreamIndexer)
   * glob
+  * icalendar (for IcsStreamIndexer)
   * json
   * random
-  * requests
+  * requests (for CccStreamIndexer)
   * threading
   * time
   * vlc

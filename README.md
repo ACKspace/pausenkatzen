@@ -9,14 +9,18 @@ read [Chaos Communication Congress/Camp](https://streaming.media.ccc.de) schedul
 * local collection of video material
 * python (python3 in the works)
 * python libraries (some are packaged with python):
+  * cairo (for Mosaic)
   * collections
   * datetime (for CccStreamIndexer)
   * dateutil (for CccStreamIndexer)
   * glob
   * icalendar (for IcsStreamIndexer)
   * json
+  * math (for Mosaic)
+  * numpy (for Mosaic)
   * random
   * requests (for CccStreamIndexer)
+  * rsvg (for Mosaic)
   * threading
   * time
   * vlc

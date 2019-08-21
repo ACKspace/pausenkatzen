@@ -54,7 +54,7 @@ class IcsStreamIndexer:
             # TODO: process description as stream uri
             #description = str(event['description']) # HTML
          
-            print( description )
+            #print( description )
             if ( timestamp > start and timestamp < end ):
                 locations[ location ] = event['summary']
         return locations

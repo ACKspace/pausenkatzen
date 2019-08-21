@@ -1,0 +1,3 @@
+[submodule "SVGtestcard"]
+	path = SVGtestcard
+	url = https://github.com/edent/SVGtestcard

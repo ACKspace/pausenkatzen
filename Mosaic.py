@@ -32,7 +32,7 @@ class Mosaic:
     """
     def __init__(self, uri="bg.png", address="239.255.255.42", refreshInterval=2, startPort=9001, outPort=5004):
         # NOTE: some examples used split()
-        self.instance=vlc.Instance('--verbose 0 -q --fullscreen --mosaic-width 1280 --mosaic-order "1,2,3,4,9,5,6,7,8" --mosaic-height 720 --image-duration=-1 --image-fps=24/1 --mosaic-position=1' )
+        self.instance=vlc.Instance('--verbose 0 -q --mosaic-width 1280 --mosaic-order "1,2,3,4,9,5,6,7,8" --mosaic-height 720 --image-duration=-1 --image-fps=24/1 --mosaic-position=1' )
 
         self.uri = uri
         self.address = address
@@ -56,6 +56,13 @@ class Mosaic:
 
         n = 1;
         self.streamNames = {}
+        mosaicOrder = self.generateBackground( streamNames )
+
+        if ( self.instance ):
+            self.instance.release()
+
+        self.instance=vlc.Instance('--verbose 0 -q --mosaic-width 1280 --mosaic-order ' + mosaicOrder + ' --mosaic-height 720 --image-duration=-1 --image-fps=24/1 --mosaic-position=1' )
+
         for stream in streamNames:
             #                    index  sout name uri playing intermezzoUri")
             rtpUri = "rtp://" + self.address + ":" + str( self.startPort + n - 1 )
@@ -68,14 +75,9 @@ class Mosaic:
 
             n += 1
 
-        mosaicOrder = self.generateBackground( streamNames )
-        #print( mosaicOrder )
-
         #Failed to open VDPAU backend libvdpau_va_gl.so: cannot open shared object file: No such file or directory
 
-        options = [b'image-duration=-1', b'image-fps=24/1', b'mosaic-position=1', bytes("mosaic-order=" + mosaicOrder, encoding="utf8" )]
-        #options = []
-        self.instance.vlm_add_broadcast( "mosaic", "/home/xopr/Projects/pausenkatzen/mosaic_gen.png", sout_mosaic.format( self.address, self.outPort, "Mosaic" ), len(options), options, True, False)
+        self.instance.vlm_add_broadcast( "mosaic", "mosaic_gen.png", sout_mosaic.format( self.address, self.outPort, "Mosaic" ), 0, [], True, False)
         self.instance.vlm_play_media( "mosaic" )
 
         print( "New stream: " + "Mosaic" + "\trtp://@" + self.address + ":{}".format( self.outPort ) )
@@ -85,11 +87,11 @@ class Mosaic:
         self.checkPlaying()
 
 
-    """Generates a mosaic background with testcards 
-
+    """Generates a mosaic background with testcards
+    
     Args:
         streamNames (list[str]): The list of stream names to generate testcards for
-
+    
     Returns:
         str: A string that represents a VLC mosaic order across the image
     """
@@ -108,12 +110,42 @@ class Mosaic:
         # TODO: take intermezzoUri into account
         with open("PM5644.svg") as f:
             svg_data = str(f.read())
-        #svg_surface = cairo.SVGSurface(None, width, height)
+        #mosaic_surface = cairo.SVGSurface(None, width, height)
         width = 1280
         height = 720
-        svg_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-        svg_context = cairo.Context(svg_surface)
-        # TODO: add bg: self.uri
+        mosaic_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+        mosaic_context = cairo.Context(mosaic_surface)
+
+        # Try hacky jpeg support
+        if ( self.uri.lower().endswith(('.jpg', '.jpeg'))):
+            from io import BytesIO
+            from PIL import Image
+            im = Image.open(self.uri)
+            buffer = BytesIO()
+            im.save(buffer, format="PNG")
+            buffer.seek(0)
+            image_surface = cairo.ImageSurface.create_from_png(buffer)
+        else:
+            image_surface = cairo.ImageSurface.create_from_png(self.uri)
+        # calculate proportional scaling
+        img_height = image_surface.get_height()
+        img_width = image_surface.get_width()
+        width_ratio = float(width) / float(img_width)
+        height_ratio = float(height) / float(img_height)
+        #scale_xy = min(height_ratio, width_ratio)
+        scale_xy = max(height_ratio, width_ratio)
+
+        # Draw background
+        mosaic_context.save()
+        #mosaic_context.translate(left, top)
+        mosaic_context.scale(scale_xy, scale_xy)
+        mosaic_context.set_source_surface(image_surface)
+
+        #mosaic_context.scale(float(width)/svg_width/edgeTiles, float(height)/svg_height/edgeTiles)
+        #bg_handle.render_cairo(mosaic_context)
+        mosaic_context.paint()
+        mosaic_context.restore()
+
         for i in range(1, maxTiles+1):
             if ( not i in activeTiles ):
                 mosaicOrder += sep + "0"
@@ -132,18 +164,17 @@ class Mosaic:
                 svg_height = svg_handle.props.height
 
                 # Draw svg
-                svg_context.save()
+                mosaic_context.save()
                 x = (i-1) % edgeTiles
                 y = int((i-1)/edgeTiles)
-                svg_context.translate( x * width / edgeTiles, y * height / edgeTiles )
-                svg_context.scale(float(width)/svg_width/edgeTiles, float(height)/svg_height/edgeTiles)
-                #svg_context.translate( 900, 100 )
-                svg_handle.render_cairo(svg_context)
-                svg_context.restore()
+                mosaic_context.translate( x * width / edgeTiles, y * height / edgeTiles )
+                mosaic_context.scale(float(width)/svg_width/edgeTiles, float(height)/svg_height/edgeTiles)
+                svg_handle.render_cairo(mosaic_context)
+                mosaic_context.restore()
 
             sep = ","
 
-        svg_surface.write_to_png("mosaic_gen.png")
+        mosaic_surface.write_to_png("mosaic_gen.png")
 
         return mosaicOrder
  
@@ -177,7 +208,6 @@ class Mosaic:
     """
     def setActive(self, streamName, active):
         streamInfo = self.streamNames[ streamName ]
-        print( streamInfo.uri )
         if ( active ):
             self.instance.vlm_play_media( streamInfo.name )
         else:

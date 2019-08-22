@@ -31,8 +31,10 @@ class VideoPool:
         # Only show delta
         if ( len( self.list ) > listcount ):
             print( "VideoPool found {} new files".format( len( self.list ) - listcount ) )
+            print( "" )
         elif (len( self.list ) < listcount):
             print( "VideoPool lost {} files".format( listcount - len( self.list )) )
+            print( "" )
             # TODO: remove LOST files on popList as well (to prevent video stall)
             self.popList = self.list[:]
 

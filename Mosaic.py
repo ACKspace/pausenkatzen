@@ -159,7 +159,10 @@ class Mosaic:
                 #"s/DIGITAL/${TEXT[1]}/g"
 
                 #svg_handle = rsvg.Handle( None, svg_data)
-                svg_handle = rsvg.Handle.new_from_data(bytes(custom_svg_data,encoding='utf8'))
+                try:
+                    svg_handle = rsvg.Handle.new_from_data(bytes(custom_svg_data,encoding='utf8'))
+                except:
+                    svg_handle = rsvg.Handle.new_from_data(bytes(custom_svg_data))
                 svg_width = svg_handle.props.width
                 svg_height = svg_handle.props.height
 

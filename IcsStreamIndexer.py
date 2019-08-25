@@ -47,8 +47,8 @@ class IcsStreamIndexer:
 
         # Distill active talks
         for event in self.schedule.walk('vevent'):
-            start = event.get('dtstart').dt
-            end = event.get('dtend').dt
+            start = event.get('dtstart').dt - self.margin
+            end = event.get('dtend').dt + self.margin + self.margin
             location = str(event['location'])
 
             # TODO: process description as stream uri

@@ -27,7 +27,9 @@ read [Chaos Communication Congress/Camp](https://streaming.media.ccc.de) schedul
 
 ## setup
 * install `vlc` and the `python-vlc` module/package
-* clone this repository
+* clone this repository `git clone https://github.com/ACKspace/pausenkatzen.git`
+* go into the `pausenkatzen` directory
+* initialize the submodule `git submodule update --init --recursive`
 * edit `pausenkatzen.py`: verify that
   * VideoPool points to an existing directory containing videos
   * StreamIndexer points to a current CCC schedule

@@ -43,7 +43,7 @@ class VideoPool:
             self.update()
 
         if ( not len(self.list) ):
-            return []
+            return False
 
         if ( not len(self.popList) ):
             self.popList = self.list[:]

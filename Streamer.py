@@ -45,10 +45,26 @@ class Streamer:
             stream = self.streamNames[ room ]
 
             # Get stream instance info
-            state = json.loads(self.instance.vlm_show_media( stream.name ) )
-            intermezzoState = json.loads(self.instance.vlm_show_media( stream.intermezzoName ) )
-            playing = state[ "instances" ] and (state[ "instances" ][ "instance" ][ "state" ] == "playing")
-            intermezzoPlaying = intermezzoState[ "instances" ] and (intermezzoState[ "instances" ][ "instance" ][ "state" ] == "playing")
+            state = self.instance.vlm_show_media( stream.name )
+            #print( state )
+            try:
+                state = json.loads( state )
+                playing = state[ "instances" ] and (state[ "instances" ][ "instance" ][ "state" ] == "playing")
+            except:
+                print( "stream info could not be decoded:" )
+                print( state )
+                print( "skipping" )
+                playing = None
+
+            intermezzoState = self.instance.vlm_show_media( stream.intermezzoName )
+            try:
+                intermezzoState = json.loads( intermezzoState )
+                intermezzoPlaying = intermezzoState[ "instances" ] and (intermezzoState[ "instances" ][ "instance" ][ "state" ] == "playing")
+            except:
+                print( "intermezzo info could not be decoded:" )
+                print( state )
+                print( "skipping" )
+                intermezzoPlaying = None
 
             if ( stream.playing or stream.intermezzoPlaying ):
                 if ( not playing and not intermezzoPlaying and self.callback):
@@ -72,6 +88,8 @@ class Streamer:
 
 
     def setIntermezzo(self, streamName, uri):
+        if ( not uri ):
+            return
         print( "New intermezzo for " + streamName )
         streamInfo = self.streamNames[ streamName ]
         self.instance.vlm_set_input( streamInfo.intermezzoName, uri )
